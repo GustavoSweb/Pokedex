@@ -7,7 +7,8 @@ module.exports = {
         "pulse": "pulse 0.8s linear infinite ",
       },
       colors:{
-        'main-color':'#d30a40'
+        'main-color':'#d30a40',
+        'main-b':'#f5245c'
       }
     },
   },

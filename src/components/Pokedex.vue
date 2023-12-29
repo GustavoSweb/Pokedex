@@ -2,7 +2,7 @@
   <div class="w-[500px] h-[350px]">
     <img src="../assets/img/PokedexProcess.svg" class="max-w-[500px]" alt="" />
     <img
-      :src="Pokemon.sprite"
+      :src="DataPokemonProcess.sprite"
       alt=""
       id="Sprite"
       :class="[
@@ -186,6 +186,9 @@
 </template>
 
 <script>
+import ReqApi from '../utils/ReqApi'
+
+
 export default {
   name: "Pokedex-Svg",
   data() {
@@ -193,59 +196,89 @@ export default {
       isOnPokedex: false,
       isOnSprite: ["animate-pulse", "animate-none", "opacity-100"],
       isOnSpriteValue: 1,
+      pokemonBrut: false,
     };
   },
   props: {
     pokemon: Object,
   },
   methods: {
-    LeftBut: function () {
-      console.log("Voce apertou o butão da esquerda");
-      this.OnPokedex();
+    LeftBut: async function () {
+      if (this.DataPokemonProcess.id && this.DataPokemonProcess.id != 1) {
+        try {
+          let value = [5, 3, 4];
+          this.pokemonBrut = await ReqApi.Pokemon(this.DataPokemonProcess.id - value[this.DataPokemonProcess.id % 3])
+          this.OnPokedex();
+        } catch (err) {
+          console.error(err);
+        }
+      }
     },
-    RigthBut: function () {
-      console.log("Voce apertou o butão da direita");
-      this.OnPokedex();
+    RigthBut: async function () {
+      if (this.DataPokemonProcess.id) {
+        try {
+          let value = [1, 3, 2];
+          this.pokemonBrut = await ReqApi.Pokemon(this.DataPokemonProcess.id + value[this.DataPokemonProcess.id % 3])
+          this.OnPokedex();
+        } catch (err) {
+          console.error(err);
+        }
+      }
     },
-    BottomBut: function () {
-      console.log("Voce apertou o butão de baixo");
-      this.OnPokedex();
+    BottomBut:async function () {
+      if (this.DataPokemonProcess.id && this.DataPokemonProcess.id % 3 != 1) {
+        try{
+          this.pokemonBrut = await ReqApi.Pokemon(this.DataPokemonProcess.id - 1)
+          this.OnPokedex();  
+        }catch(err){
+          console.error(err)
+        }
+      }
     },
-    TopBut: function () {
-      console.log("Voce apertou o butão de cima");
-      this.OnPokedex();
+    TopBut: async function () {
+      if (this.DataPokemonProcess.id && this.DataPokemonProcess.id % 3 != 0) {
+        try{
+          this.pokemonBrut = await ReqApi.Pokemon(this.DataPokemonProcess.id + 1)
+          this.OnPokedex();  
+        }catch(err){
+          console.error(err)
+        }
+      }
     },
     FillPath: function ($event, color) {
       $event.srcElement.attributes[2].value = color || "#282828";
     },
     OnPokedex: async function () {
+      if(!this.DataPokemonProcess) return
       setTimeout(() => {
         this.isOnPokedex = false;
-        this.isOnSpriteValue = 2
-        this.Pokemon.sprite = this.pokemon.sprites.front_default;
+        this.isOnSpriteValue = 2;
+        this.DataPokemonProcess.sprite = this.pokemonBrut.sprites.front_default;
       }, 3000);
       this.isOnPokedex = true;
-      this.isOnSpriteValue = 0
-
+      this.isOnSpriteValue = 0;
     },
   },
   computed: {
-    Pokemon: function () {
-      if (this.pokemon) {
+    DataPokemonProcess: function () {
+      if (this.pokemonBrut) {
         return {
-          name: this.pokemon.name,
-          sprite: this.pokemon.sprites.back_default,
+          name: this.pokemonBrut.name,
+          sprite: this.pokemonBrut.sprites.back_default,
+          id: this.pokemonBrut.id,
         };
       }
       return {
         name: "",
         sprite: "",
+        id: false,
       };
     },
   },
   watch: {
     pokemon(newValue) {
       if (newValue) {
+        this.pokemonBrut = this.pokemon
         this.OnPokedex();
       }
     },
@@ -266,8 +299,8 @@ export default {
 }
 #Sprite {
   position: relative;
-  top: -240px;
-  left: 75px;
+  top: -255px;
+  left: 70px;
   z-index: 2;
   opacity: 0;
 }
